@@ -5,9 +5,9 @@ project(GBG_AI)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-target_include_directories(GBG_AI PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 # Add source files and executables
 add_executable(GBG_AI main.cpp)
+
+target_include_directories(GBG_AI PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 
