@@ -3,8 +3,21 @@
 #include <iostream>
 
 int main() {
+
   dotenv::init("api_key.env");
+
   std::cout << "Hello, World!" << std::endl;
-  std::cout << "nu ska vi testa detta " << dotenv::getenv("JOHNSTEST", "hejhej") << std::endl;
+  openai::start(dotenv::getenv("APIKEY", ""));
+  auto chat = openai::chat().create(R"(
+    {
+        "model": "gpt-3.5-turbo",
+        "messages":[{"role":"user", "content":"Hej hur mår du?"}],
+        "max_tokens": 200,
+        "temperature": 0
+    }
+    )"_json);
+
+    std::cout << "Response is:\n"
+            << chat["choices"][0]["message"]["content"] << '\n';
   return 0;
 }
