@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.20)
-project(MyExistingProject)
+project(GBG_AI)
 
 # Set C++ standard to 20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+target_include_directories(GBG_AI PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 # Add source files and executables
-add_executable(MyExecutableName main.cpp)
+add_executable(GBG_AI main.cpp)
+
+
