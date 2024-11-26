@@ -36,9 +36,10 @@ int main() {
       // Call the OpenAI chat API
       auto chat = openai::chat().create(chat_request);
 
-      // Print the assistant's response
+      // Convert the respons to an int for indexing the promptArray
       int promtChoice = std::stoi(chat["choices"][0]["message"]["content"].get<std::string>());
 
+      //TO-DO Add error handling here
       if (promtChoice < 0) {
         std::cout << "Invalid question. I can only answer questions about Shell scripts, Graphics cards, "
                      "and Cisco routers \n Please try again.\n";
