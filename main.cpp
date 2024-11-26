@@ -1,7 +1,7 @@
 #include "dotenv-cpp.hpp"
 #include "openai.hpp"
-#include <iostream>
 #include "systemPromt.h"
+#include <iostream>
 
 int main() {
   try {
@@ -13,25 +13,23 @@ int main() {
     if (api_key.empty()) {
       throw std::runtime_error("API Key not found in .env file.");
     }
-
     // Initialize OpenAI
     openai::start(api_key);
-
     // Welcome message
     std::cout << "Hello! I am an expert in Shell scripts, Graphics cards, "
                  "and Cisco routers.\nPRESS Q to exit.\n"
                  "Enter your question: ";
 
     std::string question{};
-    std::getline(std::cin, question);
 
     while (question != "Q") {
+      // Prompt for the next question
+      std::cout << "Enter your question: ";
+      std::getline(std::cin, question);
       // Build the JSON request dynamically
       nlohmann::json chat_request = {
           {"model", "gpt-3.5-turbo"},
-          {"messages",
-           {{{"role", "system"}, {"content", "You are an assistant that only answers questions with one word."}},
-            {{"role", "user"}, {"content", question}}}},
+          {"messages", {{{"role", "system"}, {"content", startPrompt}}, {{"role", "user"}, {"content", question}}}},
           {"max_tokens", 200},
           {"temperature", 0}};
 
@@ -39,11 +37,22 @@ int main() {
       auto chat = openai::chat().create(chat_request);
 
       // Print the assistant's response
-      std::cout << chat["choices"][0]["message"]["content"].get<std::string>() << '\n';
+      int promtChoice = std::stoi(chat["choices"][0]["message"]["content"].get<std::string>());
 
-      // Prompt for the next question
-      std::cout << "Enter your question: ";
-      std::getline(std::cin, question);
+      if (promtChoice < 0) {
+        std::cout << "Invalid question. I can only answer questions about Shell scripts, Graphics cards, "
+                     "and Cisco routers \n Please try again.\n";
+      } else {
+        chat_request = {
+            {"model", "gpt-3.5-turbo"},
+            {"messages",
+             {{{"role", "system"}, {"content", promptArray[promtChoice]}}, {{"role", "user"}, {"content", question}}}},
+            {"max_tokens", 200},
+            {"temperature", 0}};
+
+        std::cout << openai::chat().create(chat_request)["choices"][0]["message"]["content"].get<std::string>()
+                  << std::endl;
+      }
     }
 
   } catch (const std::exception &ex) {
@@ -51,10 +60,4 @@ int main() {
   }
 
   return 0;
-}
-
-if (answer < 0) {
-  cout << "The question is not supported." << endl;
-} else {
-  //Skicka ny chat request med systemPrompt[answer];
 }
