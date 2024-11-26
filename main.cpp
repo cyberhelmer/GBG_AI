@@ -1,7 +1,7 @@
 #include "dotenv-cpp.hpp"
 #include "openai.hpp"
 #include <iostream>
-#include <string>
+#include "systemPromt.h"
 
 int main() {
   try {
