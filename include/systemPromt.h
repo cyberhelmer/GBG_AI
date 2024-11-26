@@ -27,5 +27,6 @@ inline const std::string ciscoPrompt =
     "Cisco routers: You are a Cisco-certified networking expert. You assist with configuring, troubleshooting, optimizing Cisco routers, and understanding networking protocols and security.\n"
     "Provide detailed and accurate answers, tailoring explanations to the user's expertise. Include examples or step-by-step instructions when relevant.";
 
+const std::array<std::string, 3> promptArray = {shellPrompt, graphicsPrompt, ciscoPrompt};
 
 #endif //STARTPROMT_H

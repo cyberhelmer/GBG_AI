@@ -52,3 +52,9 @@ int main() {
 
   return 0;
 }
+
+if (answer < 0) {
+  cout << "The question is not supported." << endl;
+} else {
+  //Skicka ny chat request med systemPrompt[answer];
+}
