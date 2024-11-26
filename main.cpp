@@ -29,7 +29,11 @@ int main() {
       // Build the JSON request dynamically
       nlohmann::json chat_request = {
           {"model", "gpt-3.5-turbo"},
-          {"messages", {{{"role", "user"}, {"content", question}}}},
+          {"messages",
+           {{{"role", "system"},
+             {"content", "You are an assistant that only answers questions "
+                         "with one word."}},
+            {{"role", "user"}, {"content", question}}}},
           {"max_tokens", 200},
           {"temperature", 0}};
 
