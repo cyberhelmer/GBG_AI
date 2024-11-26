@@ -30,9 +30,7 @@ int main() {
       nlohmann::json chat_request = {
           {"model", "gpt-3.5-turbo"},
           {"messages",
-           {{{"role", "system"},
-             {"content", "You are an assistant that only answers questions "
-                         "with one word."}},
+           {{{"role", "system"}, {"content", "You are an assistant that only answers questions with one word."}},
             {{"role", "user"}, {"content", question}}}},
           {"max_tokens", 200},
           {"temperature", 0}};
@@ -41,8 +39,7 @@ int main() {
       auto chat = openai::chat().create(chat_request);
 
       // Print the assistant's response
-      std::cout << chat["choices"][0]["message"]["content"].get<std::string>()
-                << '\n';
+      std::cout << chat["choices"][0]["message"]["content"].get<std::string>() << '\n';
 
       // Prompt for the next question
       std::cout << "Enter your question: ";
