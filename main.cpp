@@ -59,6 +59,5 @@ int main() {
   } catch (const std::exception &ex) {
     std::cerr << "Error: " << ex.what() << std::endl;
   }
-
   return 0;
 }
