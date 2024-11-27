@@ -2,63 +2,72 @@
 #include "openai.hpp"
 #include "systemPromt.h"
 #include <iostream>
+#include <stdexcept>
+
+nlohmann::json buildChatRequest(const std::string& systemPrompt, const std::string& userQuestion) {
+    return {
+        {"model", "gpt-3.5-turbo"},
+        {"messages", {{{"role", "system"}, {"content", systemPrompt}}, {{"role", "user"}, {"content", userQuestion}}}},
+        {"max_tokens", 200},
+        {"temperature", 0.0}
+    };
+}
 
 int main() {
-  try {
-    // Load environment variables from .env file
-    dotenv::init("api_key.env");
+    try {
+        dotenv::init("api_key.env");
+        const std::string api_key = dotenv::getenv("APIKEY", "");
+        if (api_key.empty()) {
+            throw std::runtime_error("API Key not found in .env file.");
+        }
+        openai::start(api_key);
 
-    // Get API key from environment
-    const std::string api_key = dotenv::getenv("APIKEY", "");
-    if (api_key.empty()) {
-      throw std::runtime_error(
-          "API Key not found in .env file. You need to create an env file named \n api_key.env and add your OpenAI API key to it.");
+        std::cout << "Hello! I am an expert in Shell scripts, Graphics cards, and Cisco routers.\n";
+        std::cout << "Ask me a question or press 'Q' to quit.\n";
+
+        std::string question;
+        while (true) {
+            std::cout << "Enter your question: ";
+            std::getline(std::cin, question);
+
+            if (question == "Q" || question == "q") {
+                std::cout << "Goodbye! Thank you for using the assistant.\n";
+                break;
+            }
+
+            if (question.empty()) {
+                std::cout << "Please enter a valid question.\n";
+                continue;
+            }
+
+            auto chatRequest = buildChatRequest(startPrompt, question);
+
+            try {
+                auto chatResponse = openai::chat().create(chatRequest);
+
+                //Convert answer for indexing next systemPromt
+                int promptChoice = std::stoi(chatResponse["choices"][0]["message"]["content"].get<std::string>());
+
+                //Makes sure the promtChoice is valid
+                if (promptChoice < 0 || promptChoice >= promptArray.size()) {
+                    std::cout << "Invalid choice. Please ask a valid question.\n";
+                    continue;
+                }
+
+                chatRequest = buildChatRequest(promptArray[promptChoice], question);
+
+                std::cout << "AI Response:\n"
+                          << openai::chat().create(chatRequest)["choices"][0]["message"]["content"].get<std::string>()
+                          << "\n";
+
+            } catch (const std::exception& ex) {
+                std::cerr << "Error during API call: " << ex.what() << "\n";
+            }
+        }
+
+    } catch (const std::exception& ex) {
+        std::cerr << "Error: " << ex.what() << "\n";
     }
-    // Initialize OpenAI
-    openai::start(api_key);
-    // Welcome message
-    std::cout << "Hello! I am an expert in Shell scripts, Graphics cards, "
-                 "and Cisco routers.\nPRESS Q to exit.\n"
-                 "Enter your question: ";
 
-    std::string question{};
-
-    while (question != "Q") {
-      // Prompt for the next question
-      std::cout << "Enter your question: ";
-      std::getline(std::cin, question);
-      // Build the JSON request dynamically
-      nlohmann::json chat_request = {
-          {"model", "gpt-3.5-turbo"},
-          {"messages", {{{"role", "system"}, {"content", startPrompt}}, {{"role", "user"}, {"content", question}}}},
-          {"max_tokens", 200},
-          {"temperature", 0}};
-
-      // Call the OpenAI chat API
-      auto chat = openai::chat().create(chat_request);
-
-      // Convert the respons to an int for indexing the promptArray
-      int promtChoice = std::stoi(chat["choices"][0]["message"]["content"].get<std::string>());
-
-      // TO-DO Add error handling here
-      if (promtChoice < 0) {
-        std::cout << "Invalid question. I can only answer questions about Shell scripts, Graphics cards, "
-                     "and Cisco routers \n Please try again.\n";
-      } else {
-        chat_request = {
-            {"model", "gpt-3.5-turbo"},
-            {"messages",
-             {{{"role", "system"}, {"content", promptArray[promtChoice]}}, {{"role", "user"}, {"content", question}}}},
-            {"max_tokens", 200},
-            {"temperature", 0}};
-
-        std::cout << openai::chat().create(chat_request)["choices"][0]["message"]["content"].get<std::string>()
-                  << std::endl;
-      }
-    }
-
-  } catch (const std::exception &ex) {
-    std::cerr << "Error: " << ex.what() << std::endl;
-  }
-  return 0;
+    return 0;
 }
